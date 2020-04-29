@@ -16,14 +16,14 @@ class Razlomak(object):
      @staticmethod
      def stvori(broj):
         broj_decimala = 0
-        naz = 10
+        nazivnik = 10
 
         while (broj % 1 != 0):
             broj *= 10
             broj_decimala += 1
-        naz = pow(naz, broj_decimala)
+        nazivnik = pow(nazivnik, broj_decimala)
 
-        return Razlomak(broj, naz)
+        return Razlomak(broj, nazivnik)
 
 
 print('*** test1 ***')
@@ -31,10 +31,10 @@ r1 = Razlomak(314, 100)
 r2 = Razlomak.inverz(r1)
 print(r1, r2, r1)
 
-'''print('*** test2 ***')
+print('*** test2 ***')
 r1 = Razlomak.stvori(3.14)
 print(r1)
 r2 = Razlomak.stvori(0.006021)
 print(r2)
 r3 = Razlomak.stvori(-75.204)
-print(r3)'''
+print(r3)
