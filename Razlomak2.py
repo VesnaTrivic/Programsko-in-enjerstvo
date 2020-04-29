@@ -1,14 +1,3 @@
-#-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
-#
-# Author:      Vesna
-#
-# Created:     31.03.2020
-# Copyright:   (c) Vesna 2020
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
-
 class Razlomak(object):
      '''Klasa Razlomak'''
 
@@ -20,10 +9,21 @@ class Razlomak(object):
      def __str__(self):
           return '%d|%d' % (self._brojnik, self._nazivnik)
 
+     @staticmethod
      def inverz(self):
-          return '%d|%d' % (self._nazivnik, self._brojnik)
+        return Razlomak(self._nazivnik, self._brojnik)
 
-     '''def stvori():'''
+     @staticmethod
+     def stvori(broj):
+        broj_decimala = 0
+        naz = 10
+
+        while (broj % 1 != 0):
+            broj *= 10
+            broj_decimala += 1
+        naz = pow(naz, broj_decimala)
+
+        return Razlomak(broj, naz)
 
 
 print('*** test1 ***')
