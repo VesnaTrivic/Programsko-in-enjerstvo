@@ -143,15 +143,15 @@ class IspitiDB():
                             JOIN studenti ON studenti.student_id = ispiti.student_id
                             JOIN kolegiji ON kolegiji.kolegij_id=ispiti.kolegij_id""")
 
-
           self.conn.commit()
-          lista = self.cur.fetchone()
-##          lista = self.cur.fetchall()
-          isp = Ispiti()
-##          for x in lista:
-##               isp.dodaj(x)
-##          return isp
-          return lista
+          lista = self.cur.fetchall()
+
+          ispit = Ispiti()
+          for x in lista:
+               ispit.dodaj(x[0],x[1],x[2])
+          if not len(ispit):
+               return None
+          return ispit
 
 print("*** TEST datoteka ***")
 isp = Ispiti()
