@@ -1,4 +1,4 @@
-student1	kolegij1	5
-student1	kolegij2	4
-student2	kolegij3	4
-student2	kolegij1	5
+Ante Antic 	 Linearna algebra 	 5
+Ante Antic 	 Programiranje 1 	 4
+Marija Marijic 	 Linearna algebra 	 4
+Marija Marijic 	 Matematicka analiza 	 5
