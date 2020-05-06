@@ -16,14 +16,15 @@ class Ispiti(dict):
           self[student][kolegij] = ocjena
 
      def spremi_datoteka(self, datoteka):
-        with open(datoteka, 'w') as d:
-            studenti=self.keys()
-            for i in range(len(self)):
-                kolegiji=self[studenti[i]].keys()
-                for j in range(len(kolegiji)):
-                    ispit=studenti[i], kolegiji[j], self[studenti[i]][kolegiji[j]]
-                    podaci="%s \t %s \t %s\n" %(studenti[i], kolegiji[j], self[studenti[i]][kolegiji[j]])
+          with open(datoteka, 'w') as d:
+            for x, kljuc in self.items():
+               student=x
+               for kolegij in kljuc:
+                    podaci="%s \t %s \t %s\n" %(student, kolegij, kljuc[kolegij])
                     d.write(podaci)
+
+
+
 
      @staticmethod
      def ucitaj_datoteka(datoteka):
@@ -90,6 +91,11 @@ class IspitiDB():
         row = self.cur.fetchone()
         if row:
             return row[0]
+     def vrati_ispit(self,student_id,kolegij_id):
+        self.cur.execute("""SELECT * FROM ispiti WHERE student_id=? AND kolegij_id=?""", (student_id, kolegij_id))
+        row = self.cur.fetchone()
+        if row:
+            return row[0]
 
      def dodaj_student(self, ime_prezime):
         self.cur.execute("""INSERT INTO studenti (ime_prezime) VALUES (?)""",(ime_prezime, ))
@@ -109,29 +115,51 @@ class IspitiDB():
         self.conn.commit()
 
      def ispitaj(self,student,kolegij,ocjena=None):
+        student_id=self.vrati_student_id(student)
+        kolegij_id=self.vrati_kolegij_id(kolegij)
+        imaIspit = self.vrati_ispit(student_id,kolegij_id)
         if(ocjena==None):
             self.cur.execute("DELETE FROM ispiti WHERE student_id = ? AND kolegij_id=?",
-                               (self.vrati_student_id(student),self.vrati_kolegij_id(kolegij) ))
+                               (student_id, kolegij_id))
             self.conn.commit()
-        elif(ocjena):
-               self.cur.execute("INSERT INTO ispiti (student_id, kolegij_id, ocjena) VALUES (?, ?,?)",
-                               (self.vrati_student_id(student),self.vrati_kolegij_id(kolegij),ocjena))
+        if(student_id==None):
+               self.dodaj_student(student)
+
+        if(kolegij_id==None):
+               self.dodaj_kolegij(kolegij)
                self.conn.commit()
 
+        if(ocjena and imaIspit!=None):
+               self.cur.execute("UPDATE ispiti SET ocjena = ? WHERE student_id = ? AND kolegij_id=?",
+                               (ocjena, student_id, kolegij_id))
+               self.conn.commit()
+        elif(ocjena):
+               self.cur.execute("INSERT INTO ispiti (student_id, kolegij_id, ocjena) VALUES (?, ?, ?)",
+                               (student_id, kolegij_id, ocjena))
+               self.conn.commit()
 
      def svi_ispiti(self):
-        self.cur.execute("""SELECT studenti.ime_prezime, kolegiji.naziv, ocjena FROM ispiti
-                            JOIN studenti ON studenti.student_id=ispiti.student_id
+          self.cur.execute("""SELECT studenti.ime_prezime, kolegiji.naziv, ocjena FROM ispiti
+                            JOIN studenti ON studenti.student_id = ispiti.student_id
                             JOIN kolegiji ON kolegiji.kolegij_id=ispiti.kolegij_id""")
-        return self.cur.fetchone()
 
-("*** TEST datoteka ***")
+
+          self.conn.commit()
+          lista = self.cur.fetchone()
+##          lista = self.cur.fetchall()
+          isp = Ispiti()
+##          for x in lista:
+##               isp.dodaj(x)
+##          return isp
+          return lista
+
+print("*** TEST datoteka ***")
 isp = Ispiti()
 isp.dodaj("Ante Antic", "Linearna algebra", 5)
 isp.dodaj("Ante Antic", "Programiranje 1", 4)
 isp.dodaj("Marija Marijic", "Linearna algebra", 4)
 isp.dodaj("Marija Marijic", "Matematicka analiza", 5)
-#isp.spremi_datoteka("ispiti.txt")
+isp.spremi_datoteka("ispiti.txt")
 print(open("ispiti.txt").read())
 isp = Ispiti.ucitaj_datoteka("ispiti.txt")
 print(isp)
@@ -150,28 +178,28 @@ print(isp)
 print('*** TEST SQLite studenti ***')
 db = IspitiDB("ispiti.sqlite")
 print(db.cur.execute("SELECT * FROM studenti").fetchall())
-db.dodaj_student("Ante Antić")
-db.dodaj_student("Ana Anić")
-db.dodaj_student("Pero Perić")
+db.dodaj_student("Ante Antic")
+db.dodaj_student("Ana Anic")
+db.dodaj_student("Pero Peric")
 print(db.cur.execute("SELECT * FROM studenti").fetchall())
-print(db.vrati_student_id("Pero Perić"))
-print(db.vrati_student_id("Marija Marijić"))
-db.izbrisi_student("Pero Perić")
-db.promijeni_student("Ana Anić", "Marija Marijić")
+print(db.vrati_student_id("Pero Peric"))
+print(db.vrati_student_id("Marija Marijic"))
+db.izbrisi_student("Pero Peric")
+db.promijeni_student("Ana Anic", "Marija Marijic")
 print(db.cur.execute("SELECT * FROM studenti").fetchall())
 
 print('*** TEST SQLite ispiti ***')
 db = IspitiDB("ispiti.sqlite")
-db.dodaj_student("Ante Antić")
-db.dodaj_student("Marija Marijić")
+db.dodaj_student("Ante Antic")
+db.dodaj_student("Marija Marijic")
 db.dodaj_kolegij("Linearna algebra")
-db.ispitaj("Ante Antić", "Linearna algebra", 5)
+db.ispitaj("Ante Antic", "Linearna algebra", 5)
 print(db.svi_ispiti())
-db.ispitaj("Ante Antić", "Linearna algebra", 4)
+db.ispitaj("Ante Antic", "Linearna algebra", 4)
 print(db.svi_ispiti())
-db.ispitaj("Ante Antić", "Linearna algebra")
+db.ispitaj("Ante Antic", "Linearna algebra")
 print(db.svi_ispiti())
-db.ispitaj("Ante Antić", "Linearna algebra", 5)
-db.ispitaj("Marija Marijić", "Programiranje 1", 5)
-db.ispitaj("Marija Marijić", "Matematička analiza", 4)
+db.ispitaj("Ante Antic", "Linearna algebra", 5)
+db.ispitaj("Marija Marijic", "Programiranje 1", 5)
+db.ispitaj("Marija Marijic", "Matematicka analiza", 4)
 print(db.svi_ispiti())
