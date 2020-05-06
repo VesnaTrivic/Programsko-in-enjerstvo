@@ -23,9 +23,6 @@ class Ispiti(dict):
                     podaci="%s \t %s \t %s\n" %(student, kolegij, kljuc[kolegij])
                     d.write(podaci)
 
-
-
-
      @staticmethod
      def ucitaj_datoteka(datoteka):
           ispit=Ispiti()
